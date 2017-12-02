@@ -4,7 +4,9 @@ import Dependencies._
 lazy val common_settings = Seq(
   libraryDependencies ++= Seq(
     scalaTest % Test,
-    dep_ammonite
+    dep_ammonite,
+    dep_airframe_log,
+    dep_quicklens
   )
 )
 
@@ -31,4 +33,18 @@ lazy val `airframe-log-migrate-slf4f` = (project in file("airframe-log-migrate-s
   .dependsOn(airframe)
   .settings(
 
+  )
+
+lazy val `scala-scraper` = (project in file("scala-scraper"))
+  .settings(common_settings)
+  .settings(
+    libraryDependencies ++= Seq(
+      dep_scala_scraper
+    )
+  )
+
+lazy val wartremover = (project in file("wartremover"))
+  .settings(common_settings)
+  .settings(
+    wartremoverErrors ++= Warts.unsafe
   )
