@@ -58,3 +58,12 @@ lazy val `scala-coroutines` = (project in file("scala-coroutines"))
     ),
     settings_coroutines
   )
+
+lazy val `json-rapture` = (project in file("json-rapture"))
+  .settings(common_settings)
+  .settings(
+    RaptureJson.settings_resolvers,
+    libraryDependencies ++= Seq(
+      `dep_scala-async`
+    ) ++ RaptureJson.deps_common :+ RaptureJson.dep_backend_jackson :+ RaptureJson.dep_backend_circe :+ dep_vertx_lang_scala :+ `dep_jackson-module-scala`
+  )

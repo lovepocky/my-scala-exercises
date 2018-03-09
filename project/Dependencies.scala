@@ -2,9 +2,11 @@ import sbt._
 import sbt.Keys._
 
 object Versions {
-  val airframe  = "0.29"
-  val coroutine = "0.6"
+  val airframe           = "0.29"
+  val coroutine          = "0.6"
   val coroutine_snapshot = "0.8-SNAPSHOT"
+  val rapture_json       = "2.0.0-M9"
+  val vertx              = "3.5.0"
 }
 
 object Dependencies {
@@ -35,4 +37,20 @@ object Dependencies {
     ),
     libraryDependencies ++= Seq("com.storm-enroute" %% "coroutines" % Versions.coroutine_snapshot)
   )
+
+  object RaptureJson {
+    val settings_resolvers = resolvers += "Sonatype OSS Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots"
+
+    val deps_common = Seq(
+      "com.propensive." %% "rapture-json" % Versions.rapture_json
+    )
+
+    val dep_backend_circe   = "com.propensive" %% "rapture-json-circe"   % Versions.rapture_json
+    val dep_backend_jackson = "com.propensive" %% "rapture-json-jackson" % Versions.rapture_json
+
+  }
+
+  val dep_vertx_lang_scala = "io.vertx" %% "vertx-lang-scala" % Versions.vertx
+
+  val `dep_jackson-module-scala` = "com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.9.4"
 }
