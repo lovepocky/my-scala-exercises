@@ -67,3 +67,12 @@ lazy val `json-rapture` = (project in file("json-rapture"))
       `dep_scala-async`
     ) ++ RaptureJson.deps_common :+ RaptureJson.dep_backend_jackson :+ RaptureJson.dep_backend_circe :+ dep_vertx_lang_scala :+ `dep_jackson-module-scala`
   )
+
+lazy val `vertx-web-client` = (project in file("vertx-web-client"))
+  .settings(common_settings)
+  .settings(
+    libraryDependencies ++= Seq(
+      `dep_scala-async`,
+      `dep_vertx-web-client`
+    ) ++ dep_airframe
+  )
