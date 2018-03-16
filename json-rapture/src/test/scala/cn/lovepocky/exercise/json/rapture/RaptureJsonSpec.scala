@@ -4,6 +4,7 @@ import org.scalatest.FlatSpec
 import rapture.data.MutableCell
 
 class RaptureJsonSpec extends FlatSpec {
+  import RaptureJsonSpec._
 
   "rapture json" should "work" in {}
 
@@ -55,9 +56,6 @@ class RaptureJsonSpec extends FlatSpec {
     val j_jackson: Json = json"""{ "name": "abc", "age": 18, "arr": [ 1,2,3] }"""
 
     val j_vsjson = Json.construct(MutableCell(vsjson), Vector())(rapture.json.jsonBackends.vertx.implicitJsonAst)
-    println(j_vsjson)
-    j_jackson.toBareString
-    j_vsjson.toBareString
 
     {
       val vsjson   = VSJson.obj("b" -> true, "name" -> "abc")
@@ -65,7 +63,23 @@ class RaptureJsonSpec extends FlatSpec {
       println(j_vsjson.toString)
     }
 
+    {
+
+      import rapture.json.jsonBackends.vertx._
+      val j_vsjson = fromJson(vsjson)
+      println(j_vsjson)
+      println((j_vsjson \ "name").as[String])
+      println(Json(VertxExtractTest("name", 123)))
+      import formatters.humanReadable._
+      println(Json.format(j_vsjson))
+//      println(j_vsjson.as[VertxExtractTest])
+    }
+
     println("over")
   }
 
+}
+
+object RaptureJsonSpec {
+  case class VertxExtractTest(name: String, age: Int)
 }
