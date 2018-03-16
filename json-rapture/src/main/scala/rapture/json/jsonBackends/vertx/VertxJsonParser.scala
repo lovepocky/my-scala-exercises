@@ -23,25 +23,32 @@ import rapture.data._
 
 //import com.fasterxml.jackson.databind._
 import io.vertx.scala.core.parsetools.JsonParser
-import io.vertx.core.buffer.Buffer
-import io.vertx.core.json.{Json}
 
 private[vertx] object VertxJsonParser extends Parser[String, JsonAst] {
 
   val ast = VertxJsonAst
 
   override def toString = "<VertxJsonParser>"
-  val parser            = JsonParser.newParser()
-
-  /*private val mapper = new ObjectMapper()
-    .enable(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS)
-    .enable(DeserializationFeature.USE_BIG_INTEGER_FOR_INTS)*/
 
   def parse(s: String): Option[Any] = {
+    import scala.util.Try
+    import io.vertx.lang.scala.json._
+
+    Try {
+      Json.fromObjectString(s)
+    }.recover {
+      case e: io.vertx.core.json.DecodeException =>
+        Json.fromArrayString(s)
+    }.toOption
+  }
+
+//  lazy val parser: JsonParser       = JsonParser.newParser()
+//  implicit val ec: ExecutionContext = scala.concurrent.ExecutionContext.Implicits.global
+  /*def parse(s: String): Option[Any] = {
     import io.vertx.core.parsetools.JsonEventType._
 
     parser.handle(Buffer.buffer(s))
-    parser.end()
+//    parser.end()
     parser.handler(event => {
       event.`type`() match {
 //        case START_OBJECT =>
@@ -49,6 +56,8 @@ private[vertx] object VertxJsonParser extends Parser[String, JsonAst] {
           event.value()
       }
     })
+    parser
     ???
-  }
+  }*/
+
 }

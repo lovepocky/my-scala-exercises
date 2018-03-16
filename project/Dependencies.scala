@@ -50,8 +50,9 @@ object Dependencies {
 
   }
 
-  val dep_vertx_lang_scala   = "io.vertx" %% "vertx-lang-scala"       % Versions.vertx
-  val `dep_vertx-web-client` = "io.vertx" %% "vertx-web-client-scala" % Versions.vertx
+  val dep_vertx_lang_scala     = "io.vertx" %% "vertx-lang-scala"         % Versions.vertx
+  val `dep_vertx-web-client`   = "io.vertx" %% "vertx-web-client-scala"   % Versions.vertx
+  val `dep_vertx-mongo-client` = "io.vertx" %% "vertx-mongo-client-scala" % Versions.vertx
 
   val `dep_jackson-module-scala` = "com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.9.4"
 }

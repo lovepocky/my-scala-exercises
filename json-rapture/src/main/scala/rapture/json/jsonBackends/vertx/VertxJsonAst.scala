@@ -24,6 +24,7 @@ import com.fasterxml.jackson.databind._
 import com.fasterxml.jackson.databind.node.NullNode
 
 import scala.collection.JavaConverters._
+import scala.collection.immutable.MapLike
 
 /** A type class for Jackson parsing */
 private[vertx] object VertxJsonAst extends JsonAst {
@@ -162,41 +163,48 @@ private[vertx] object VertxJsonAst extends JsonAst {
     case x: JsonNode if x.isNull => true
     case _ => false
   }*/
-  override def getBoolean(boolean: Any): Boolean = ???
 
-  override def fromBoolean(boolean: Boolean): Any = ???
+  import io.vertx.core.json.{Json => VJson, JsonObject, JsonArray}
+  import io.vertx.lang.scala.json.{Json => VSJson}
 
-  override def getString(string: Any): String = ???
+  override def getBoolean(boolean: Any): Boolean = boolean.asInstanceOf[Boolean]
 
-  override def fromString(string: String): Any = ???
+  override def fromBoolean(boolean: Boolean): Any = boolean
 
-  override def getDouble(number: Any): Double = ???
+  override def getString(string: Any): String = string.asInstanceOf[String]
 
-  override def fromDouble(number: Double): Any = ???
+  override def fromString(string: String): Any = string
 
-  override def getBigDecimal(number: Any): BigDecimal = ???
+  override def getDouble(number: Any): Double = number.asInstanceOf[Double]
 
-  override def fromBigDecimal(number: BigDecimal): Any = ???
+  override def fromDouble(number: Double): Any = number
 
-  override def isBoolean(any: Any): Boolean = ???
+  override def getBigDecimal(number: Any): BigDecimal = number match {
+    case n: java.lang.Integer => BigDecimal(n)
+    case n: java.lang.Double  => BigDecimal(n)
+  }
 
-  override def isString(any: Any): Boolean = ???
+  override def fromBigDecimal(number: BigDecimal): Any = number
 
-  override def isNumber(any: Any): Boolean = ???
+  override def isBoolean(any: Any): Boolean = any.isInstanceOf[Boolean]
 
-  override def isNull(any: Any): Boolean = ???
+  override def isString(any: Any): Boolean = any.isInstanceOf[String]
 
-  override def nullValue: Any = ???
+  override def isNumber(any: Any): Boolean = any.isInstanceOf[Double] || any.isInstanceOf[BigDecimal] || any.isInstanceOf[java.lang.Integer]
 
-  override def isObject(any: Any): Boolean = ???
+  override def isNull(any: Any): Boolean = any == null
 
-  override def isArray(any: Any): Boolean = ???
+  override def nullValue: Any = null
 
-  override def getObject(obj: Any): Map[String, Any] = ???
+  override def isObject(any: Any): Boolean = any.isInstanceOf[JsonObject]
 
-  override def fromObject(obj: Map[String, Any]): Any = ???
+  override def isArray(any: Any): Boolean = any.isInstanceOf[JsonArray]
 
-  override def getArray(array: Any): Seq[Any] = ???
+  override def getObject(obj: Any): Map[String, Any] = obj.asInstanceOf[JsonObject].getMap.asScala.toMap
 
-  override def fromArray(array: Seq[Any]): Any = ???
+  override def fromObject(obj: Map[String, Any]): Any = VSJson.obj(obj.toSeq: _*)
+
+  override def getArray(array: Any): Seq[Any] = array.asInstanceOf[JsonArray].getList.asScala
+
+  override def fromArray(array: Seq[Any]): Any = VSJson.arr(array)
 }

@@ -76,3 +76,12 @@ lazy val `vertx-web-client` = (project in file("vertx-web-client"))
       `dep_vertx-web-client`
     ) ++ dep_airframe
   )
+
+lazy val `vertx-mongo-client` = (project in file("vertx-mongo-client"))
+  .settings(common_settings)
+  .settings(
+    libraryDependencies ++= Seq(
+      `dep_scala-async`,
+      `dep_vertx-mongo-client`
+    ) ++ dep_airframe
+  )
