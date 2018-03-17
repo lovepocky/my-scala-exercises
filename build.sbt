@@ -92,11 +92,13 @@ lazy val `vertx-mongo-client` = (project in file("vertx-mongo-client"))
 //  .dependsOn(`json-rapture`)
   .settings(common_settings)
   .settings(
+    dep.RaptureJson.settings_resolvers,
     libraryDependencies ++= Seq(
       `dep_scala-async`,
       `vertx-mongo-client-scala`,
       dep_joda_time
     ) ++ dep_airframe
+      :+ dep.RaptureJson.dep_backend_vertx
   )
 
 lazy val `vertx-graphql` = (project in file("vertx-graphql"))
