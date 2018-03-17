@@ -9,7 +9,7 @@ object Versions {
   val vertx              = "3.5.1"
 }
 
-object Dependencies {
+object dep {
 
   lazy val dep_joda_time = "joda-time" % "joda-time" % "2.9.3"
 
@@ -42,7 +42,10 @@ object Dependencies {
   )
 
   object RaptureJson {
-    val settings_resolvers = resolvers += "Sonatype OSS Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots"
+    val settings_resolvers = resolvers ++= Seq(
+      "Sonatype OSS Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots",
+      "Sonatype-lovepocky" at "http://jd.lovepocky.cn:8081/repository/lovepocky/"
+    )
 
     val deps_common = Seq(
       "com.propensive." %% "rapture-json" % Versions.rapture_json
@@ -50,13 +53,16 @@ object Dependencies {
 
     val dep_backend_circe   = "com.propensive" %% "rapture-json-circe"   % Versions.rapture_json
     val dep_backend_jackson = "com.propensive" %% "rapture-json-jackson" % Versions.rapture_json
-    val dep_backend_vertx = "cn.lovepocky" %% "rapture-json-vertx" % Versions.rapture_json //at  "http://jd.lovepocky.cn:8081/repository/lovepocky"
-
+    val dep_backend_vertx   = "cn.lovepocky"   %% "rapture-json-vertx"   % Versions.rapture_json
   }
 
-  val dep_vertx_lang_scala     = "io.vertx" %% "vertx-lang-scala"         % Versions.vertx
-  val `dep_vertx-web-client`   = "io.vertx" %% "vertx-web-client-scala"   % Versions.vertx
-  val `dep_vertx-mongo-client` = "io.vertx" %% "vertx-mongo-client-scala" % Versions.vertx
+  val dep_vertx_lang_scala       = "io.vertx" %% "vertx-lang-scala"         % Versions.vertx
+  val `vertx-web-client-scala`   = "io.vertx" %% "vertx-web-client-scala"   % Versions.vertx
+  val `vertx-mongo-client-scala` = "io.vertx" %% "vertx-mongo-client-scala" % Versions.vertx
+  val `vertx-web-scala`          = "io.vertx" %% "vertx-web-scala"          % Versions.vertx
 
   val `dep_jackson-module-scala` = "com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.9.4"
+
+  val `sangria`       = "org.sangria-graphql" %% "sangria"       % "1.4.0"
+  val `sangria-circe` = "org.sangria-graphql" %% "sangria-circe" % "1.2.1"
 }

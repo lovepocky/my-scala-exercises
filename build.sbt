@@ -1,4 +1,4 @@
-import Dependencies._
+import dep._
 
 lazy val common_settings = Seq(
   organization := "cn.lovepocky",
@@ -84,17 +84,35 @@ lazy val `vertx-web-client` = (project in file("vertx-web-client"))
   .settings(
     libraryDependencies ++= Seq(
       `dep_scala-async`,
-      `dep_vertx-web-client`
+      `vertx-web-client-scala`
     ) ++ dep_airframe
   )
 
 lazy val `vertx-mongo-client` = (project in file("vertx-mongo-client"))
-  .dependsOn(`json-rapture`)
+//  .dependsOn(`json-rapture`)
   .settings(common_settings)
   .settings(
     libraryDependencies ++= Seq(
       `dep_scala-async`,
-      `dep_vertx-mongo-client`,
+      `vertx-mongo-client-scala`,
       dep_joda_time
     ) ++ dep_airframe
+  )
+
+lazy val `vertx-graphql` = (project in file("vertx-graphql"))
+  .settings(common_settings)
+  .settings(
+    dep.RaptureJson.settings_resolvers,
+    libraryDependencies ++= Seq(
+//      `dep_vertx-mongo-client`,
+    ) ++ dep_airframe
+      ++ dep.RaptureJson.deps_common
+      :+ dep.RaptureJson.dep_backend_vertx
+      :+ dep.RaptureJson.dep_backend_circe
+      :+ `dep_scala-async`
+      :+ dep_joda_time
+      :+ dep.`sangria`
+      :+ dep.`sangria-circe`
+      :+ dep.`vertx-web-client-scala`
+      :+ dep.`vertx-web-scala`
   )
