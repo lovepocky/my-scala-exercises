@@ -1,10 +1,13 @@
 package cn.lovepocky.exercise.graphql
 
+import com.typesafe.scalalogging.LazyLogging
 import wvlet.airframe._
 import io.vertx.lang.scala._
 import io.vertx.scala.core._
+import io.vertx.scala.core.dns.AddressResolverOptions
 import io.vertx.scala.ext.web._
 import io.vertx.scala.ext.web.handler.BodyHandler
+import org.joda.time.DateTime
 
 import scala.concurrent.Await
 import scala.concurrent.duration.Duration
@@ -16,7 +19,12 @@ object VertxGraphqlServer {
   def main(args: Array[String]): Unit = {
     val d = newDesign
       .bind[Vertx]
-      .toInstance(Vertx.vertx())
+      .toInstance(
+        Vertx.vertx(VertxOptions()
+            .setAddressResolverOptions(
+              AddressResolverOptions().setServers(Set("192.168.1.1").toBuffer)
+            ))
+      )
 
     d.withSession { session =>
       val app = session.build[App]
@@ -29,14 +37,15 @@ object VertxGraphqlServer {
 
   }
 
-  class App {
+  class App extends LazyLogging {
 
     lazy val vertx: Vertx = bind[Vertx].beforeShutdown { v =>
-      println("closing vertx")
+      logger.info("closing vertx")
       v.close()
     }
 
     def start(args: Array[String]): Unit = {
+      logger.info("app start")
       val server = vertx.createHttpServer()
 
       val router = Router.router(vertx)
@@ -65,7 +74,7 @@ object VertxGraphqlServer {
 
         ctx.getBodyAsJson() match {
           case Some(body) =>
-            println(s"body = ${body}")
+//            println(s"body = ${body}")
             val all           = fromJson(body)
             val query         = (all \ "query").as[String]
             val operationName = (all \ "operationName").as[Option[String]]
@@ -106,9 +115,12 @@ object VertxGraphqlServer {
         }
       }
 
+      val port = 8000
+      logger.debug(s"start bind port to $port")
       server
         .requestHandler(router.accept _)
-        .listen(8000)
+        .listen(port, "0.0.0.0")
+      logger.info(s"listen at $port complete")
     }
   }
 

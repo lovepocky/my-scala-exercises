@@ -102,7 +102,8 @@ lazy val `vertx-mongo-client` = (project in file("vertx-mongo-client"))
 lazy val `vertx-graphql` = (project in file("vertx-graphql"))
   .settings(common_settings)
   .settings(
-    fork in run := true
+    fork in run := true,
+    javaOptions ++= Seq("-Dvertx.logger-delegate-factory-class-name=io.vertx.core.logging.SLF4JLogDelegateFactory")
   )
   .settings(
     dep.RaptureJson.settings_resolvers,
@@ -110,6 +111,8 @@ lazy val `vertx-graphql` = (project in file("vertx-graphql"))
 //      `dep_vertx-mongo-client`,
     ) ++ dep_airframe
       ++ dep.RaptureJson.deps_common
+      ++ dep.`logback`
+      :+ dep.`scala-logging`
       :+ dep.RaptureJson.dep_backend_vertx
       :+ dep.RaptureJson.dep_backend_circe
       :+ `dep_scala-async`

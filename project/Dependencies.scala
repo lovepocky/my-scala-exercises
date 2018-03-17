@@ -11,6 +11,16 @@ object Versions {
 
 object dep {
 
+  /**
+    * log
+    */
+  lazy val `scala-logging` = "com.typesafe.scala-logging" %% "scala-logging" % "3.7.2"
+
+  lazy val `logback` = Seq(
+    "ch.qos.logback" % "logback-core"    % "1.2.3",
+    "ch.qos.logback" % "logback-classic" % "1.2.3"
+  )
+
   lazy val dep_joda_time = "joda-time" % "joda-time" % "2.9.3"
 
   lazy val scalaTest = "org.scalatest" %% "scalatest" % "3.0.3"
