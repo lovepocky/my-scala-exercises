@@ -2,11 +2,20 @@ package cn.lovepocky.exercise.graphql
 
 import org.scalatest.{AsyncWordSpec, WordSpec}
 
+import scala.concurrent.Future
+
 class SangriaSpec extends AsyncWordSpec {
 
   "sangria" should {
 
     import SangriaExample._
+
+    "generate schema text" in {
+      Future.successful {
+        println(schema.renderPretty)
+        assert(true)
+      }
+    }
 
     "execute query" in {
       import sangria.macros._
