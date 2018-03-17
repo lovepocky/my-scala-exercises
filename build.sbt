@@ -102,6 +102,9 @@ lazy val `vertx-mongo-client` = (project in file("vertx-mongo-client"))
 lazy val `vertx-graphql` = (project in file("vertx-graphql"))
   .settings(common_settings)
   .settings(
+    fork in run := true
+  )
+  .settings(
     dep.RaptureJson.settings_resolvers,
     libraryDependencies ++= Seq(
 //      `dep_vertx-mongo-client`,
