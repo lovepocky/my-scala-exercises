@@ -10,6 +10,9 @@ object Versions {
 }
 
 object Dependencies {
+
+  lazy val dep_joda_time = "joda-time" % "joda-time" % "2.9.3"
+
   lazy val scalaTest = "org.scalatest" %% "scalatest" % "3.0.3"
 
   lazy val dep_ammonite = "com.lihaoyi" % "ammonite" % "1.0.3" cross CrossVersion.full
@@ -47,6 +50,7 @@ object Dependencies {
 
     val dep_backend_circe   = "com.propensive" %% "rapture-json-circe"   % Versions.rapture_json
     val dep_backend_jackson = "com.propensive" %% "rapture-json-jackson" % Versions.rapture_json
+    val dep_backend_vertx = "cn.lovepocky" %% "rapture-json-vertx" % Versions.rapture_json //at  "http://jd.lovepocky.cn:8081/repository/lovepocky"
 
   }
 

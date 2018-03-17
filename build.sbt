@@ -68,6 +68,17 @@ lazy val `json-rapture` = (project in file("json-rapture"))
     ) ++ RaptureJson.deps_common :+ RaptureJson.dep_backend_jackson :+ RaptureJson.dep_backend_circe :+ dep_vertx_lang_scala :+ `dep_jackson-module-scala`
   )
 
+lazy val `json-rapture-test` = (project in file("json-rapture-test"))
+  .settings(common_settings)
+  .settings(
+    RaptureJson.settings_resolvers,
+    resolvers += "Sonatype-lovepocky" at "http://jd.lovepocky.cn:8081/repository/lovepocky",
+    libraryDependencies ++= Seq(
+      `dep_scala-async`,
+      RaptureJson.dep_backend_vertx
+    ) ++ RaptureJson.deps_common :+ RaptureJson.dep_backend_jackson :+ RaptureJson.dep_backend_circe :+ dep_vertx_lang_scala :+ `dep_jackson-module-scala`
+  )
+
 lazy val `vertx-web-client` = (project in file("vertx-web-client"))
   .settings(common_settings)
   .settings(
@@ -78,10 +89,12 @@ lazy val `vertx-web-client` = (project in file("vertx-web-client"))
   )
 
 lazy val `vertx-mongo-client` = (project in file("vertx-mongo-client"))
+  .dependsOn(`json-rapture`)
   .settings(common_settings)
   .settings(
     libraryDependencies ++= Seq(
       `dep_scala-async`,
-      `dep_vertx-mongo-client`
+      `dep_vertx-mongo-client`,
+      dep_joda_time
     ) ++ dep_airframe
   )
