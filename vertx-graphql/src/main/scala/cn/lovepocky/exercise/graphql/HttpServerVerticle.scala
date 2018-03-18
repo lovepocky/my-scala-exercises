@@ -34,20 +34,20 @@ class HttpServerVerticle extends ScalaVerticle with LazyLogging {
     router
       .route()
       .handler { ctx =>
-        logger.debug(s"executionContext.hashCode() = ${executionContext.hashCode()}")
+//        logger.debug(s"executionContext.hashCode() = ${executionContext.hashCode()}")
         ctx.put("request_id", java.util.UUID.randomUUID().toString)
         ctx.next()
       }
       .handler { ctx =>
         val rid                           = ctx.get[String]("request_id")
         val ec_ctx                        = VertxExecutionContext(ctx.vertx().getOrCreateContext())
-        implicit val ec: ExecutionContext = CustomMdcExecuteContext.fromThread(Map("request_id" -> rid), ec_ctx)
+        implicit val executionContext: ExecutionContext = CustomMdcExecuteContext.fromThread(Map("request_id" -> rid), ec_ctx)
         async {
           logger.debug(s"request ${ctx.normalisedPath()} start")
           logger.debug(s"request_id = $rid")
           ctx.put("start_time", DateTime.now())
           ctx.next()
-        }(ec)
+        }//(ec)
       }
 
     router
@@ -131,12 +131,13 @@ class HttpServerVerticle extends ScalaVerticle with LazyLogging {
         //handler 5
         val rid                           = ctx.get[String]("request_id")
         val ec_ctx                        = VertxExecutionContext(ctx.vertx().getOrCreateContext())
-        implicit val ec: ExecutionContext = new CustomMdcExecuteContext(Map("request_id" -> rid), ec_ctx)
+        implicit val executionContext: ExecutionContext = new CustomMdcExecuteContext(Map("request_id" -> rid), ec_ctx)
+        
         logger.info("in blockingHandler 2")
         async {
           logger.info("another request_id in event loop")
           ctx.next()
-        }(ec)
+        }
       }
 
     router.post("/graphql").handler { ctx =>
@@ -152,7 +153,11 @@ class HttpServerVerticle extends ScalaVerticle with LazyLogging {
       import formatters.compact._
       import rapture.json.jsonBackends.vertx._
 
-      ctx.getBodyAsJson() match {
+      val rid                           = ctx.get[String]("request_id")
+      val ec_ctx                        = VertxExecutionContext(ctx.vertx().getOrCreateContext())
+      implicit val executionContext: ExecutionContext = new CustomMdcExecuteContext(Map("request_id" -> rid), ec_ctx)
+
+      (ctx.getBodyAsJson() match {
         case Some(body) =>
           //            println(s"body = ${body}")
           val all           = fromJson(body)
@@ -162,30 +167,43 @@ class HttpServerVerticle extends ScalaVerticle with LazyLogging {
 
           QueryParser.parse(query) match {
             case Success(queryAst) =>
-              //                println(s"query = ${queryAst}")
-              val f   = executeGraphQLQuery(queryAst, operationName, variables)
-              val res = Await.result(f, Duration.Inf)
+//              logger.debug(s"query = ${queryAst}")
+              //val res = Await.result(f, Duration("5s"))
               //                println(s"res = $res")
-              ctx.response().end(res.encode())
-
+              executeGraphQLQuery(queryAst, operationName, variables)
+                .map { res =>
+                  logger.debug("executeGraphQLQuery returned")
+                  ctx.response().end(res.encode())
+                }
             case Failure(f) =>
-              ctx.response().end("failed")
+              Future.successful(ctx.response().end("failed"))
           }
         case None =>
-          ctx.response().end("need post body")
-      }
-      ctx.next()
+          Future.successful(ctx.response().end("need post body"))
+      }).map { _ =>
+          ctx.next()
+        }
 
       import io.vertx.lang.scala.json.JsonObject
-      def executeGraphQLQuery(query: Document, op: Option[String], vars: CJson): scala.concurrent.Future[JsonObject] = {
+      def executeGraphQLQuery(query: Document, op: Option[String], vars: CJson)(
+          implicit executionContext: ExecutionContext): scala.concurrent.Future[JsonObject] = {
         import sangria.execution._
         import sangria.marshalling.vertx.VertxResultMarshaller
         import io.vertx.lang.scala.json.{Json => VJson}
-        //TODO replace ExecutionContext
-        import scala.concurrent.ExecutionContext.Implicits.global
+//        import scala.concurrent.ExecutionContext.Implicits.global
+
+//        logger.debug(s"executeGraphQLQuery start, ec.hashcode = ${ec.hashCode()}, executionContext.hashCode = ${executionContext.hashCode()}")
+        logger.debug(s"executeGraphQLQuery start")
         Executor
-          .execute(schema, query, new ProductRepo, operationName = op, variables = vars)
+          .execute(schema, query, new ProductRepo, operationName = op, variables = vars)/*(ec,
+                                                                                         VertxResultMarshaller,
+                                                                                         CirceInputUnmarshaller,
+                                                                                         ExecutionScheme.Default)*/
           .map(_.asInstanceOf[JsonObject])
+          .map { res =>
+            logger.debug(s"executeGraphQLQuery execute complete: res = $res")
+            res
+          }
           .recover {
             case error: QueryAnalysisError =>
               println(error)

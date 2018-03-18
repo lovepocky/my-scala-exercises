@@ -6,7 +6,7 @@ import org.slf4j.MDC
 import scala.concurrent.ExecutionContext
 import scala.concurrent.ExecutionContextExecutor
 
-class CustomMdcExecuteContext(mdcContext: Map[String, String], delegate: ExecutionContext = scala.concurrent.ExecutionContext.Implicits.global)
+class CustomMdcExecuteContext(val mdcContext: Map[String, String], delegate: ExecutionContext = scala.concurrent.ExecutionContext.Implicits.global)
     extends ExecutionContextExecutor
     with LazyLogging {
   override def execute(command: Runnable): Unit =
@@ -15,11 +15,12 @@ class CustomMdcExecuteContext(mdcContext: Map[String, String], delegate: Executi
         import scala.collection.JavaConverters._
         val originContextMap = MDC.getCopyOfContextMap
         logger.debug(
-          s"merge new context = $mdcContext, originContextMap = ${if (originContextMap == null) "null" else originContextMap.asScala.toMap}")
+          s"merge new context = $mdcContext, originContextMap = ${if (originContextMap == null) "null" else originContextMap.asScala.toMap}}")
         setContextMap(
-          if (originContextMap != null)
+          /*if (originContextMap != null)
             (originContextMap.asScala.toMap ++ mdcContext).asJava
-          else mdcContext.asJava
+          else mdcContext.asJava*/
+          mdcContext.asJava
         )
         try {
           command.run()
