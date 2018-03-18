@@ -87,12 +87,12 @@ class HttpServerVerticle extends ScalaVerticle with LazyLogging {
       }
       .handler { ctx =>
         //handler 1
-        logger.info("assert without request_id 1")
+        logger.info("assert with request_id 1")
         ctx.next()
       }
       .handler { ctx =>
         //handler 2
-        logger.info("assert without request_id 2")
+        logger.info("assert with request_id 2")
         ctx.next()
       }
       .blockingHandler { ctx =>
@@ -125,7 +125,7 @@ class HttpServerVerticle extends ScalaVerticle with LazyLogging {
         async {
           logger.info("another request_id in event loop")
           ctx.next()
-        }
+        }(ec)
       }
 
     router.post("/graphql").handler { ctx =>
@@ -187,8 +187,11 @@ class HttpServerVerticle extends ScalaVerticle with LazyLogging {
     }
 
     router.route().handler { ctx =>
-      val spend = new org.joda.time.Duration(ctx.get[DateTime]("start_time"), DateTime.now()).getMillis
+      val spend      = new org.joda.time.Duration(ctx.get[DateTime]("start_time"), DateTime.now()).getMillis
+      val request_id = ctx.get[String]("request_id")
+      org.slf4j.MDC.put("request_id", request_id)
       logger.debug(s"request ${ctx.normalisedPath()} over, spend time = $spend ms")
+      org.slf4j.MDC.remove("request_id")
     }
   }
 

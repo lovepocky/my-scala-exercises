@@ -10,7 +10,7 @@
     </appender>
 
     <logger name="com.meter10.streaming" level="DEBUG" />
-    <logger name="com.xyz10.base" level="DEBUG" />
+    <logger name="com.xyz10.base" level="INFO" />
     <logger name="cn.lovepocky" level="DEBUG" />
 
     <root level="WARN">
