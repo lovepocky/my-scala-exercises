@@ -5,7 +5,7 @@ import com.xyz10.base.log.ExecuteContext.CustomMdcExecuteContext
 import io.vertx.core.{AbstractVerticle, Context, Vertx}
 import io.vertx.lang.scala._
 import io.vertx.scala.core.http.HttpServer
-import io.vertx.scala.ext.web.Router
+import io.vertx.scala.ext.web.{Router, RoutingContext}
 import io.vertx.scala.ext.web.handler.BodyHandler
 import org.joda.time.DateTime
 import org.slf4j.MDC
@@ -103,6 +103,11 @@ class HttpServerVerticle extends ScalaVerticle with LazyLogging {
           * 而且要注入到vertx中
           */
         logger.info("in blockingHandler 1")
+        val context = ctx.vertx().getOrCreateContext()
+        logger.debug(s"context.isEventLoopContext() = ${context.isEventLoopContext()}")
+        logger.debug(s"context.isMultiThreadedWorkerContext() = ${context.isMultiThreadedWorkerContext()}")
+        logger.debug(s"context.isWorkerContext() = ${context.isWorkerContext()}")
+
         Thread.sleep(2000)
         ctx.response.end("Hello World from Vert.x-Web!")
         ctx.next()
@@ -111,6 +116,12 @@ class HttpServerVerticle extends ScalaVerticle with LazyLogging {
         //handler 4
         logger.info("assert without request_id 3")
         ctx.next()
+      }
+      .blockingHandler { implicit ctx =>
+        withRequestId {
+          logger.info("in blockingHandler withRequestId")
+          ctx.next()
+        }
       }
       .blockingHandler { ctx =>
         /**
@@ -186,12 +197,11 @@ class HttpServerVerticle extends ScalaVerticle with LazyLogging {
       }
     }
 
-    router.route().handler { ctx =>
-      val spend      = new org.joda.time.Duration(ctx.get[DateTime]("start_time"), DateTime.now()).getMillis
-      val request_id = ctx.get[String]("request_id")
-      org.slf4j.MDC.put("request_id", request_id)
-      logger.debug(s"request ${ctx.normalisedPath()} over, spend time = $spend ms")
-      org.slf4j.MDC.remove("request_id")
+    router.route().handler { implicit ctx =>
+      withRequestId {
+        val spend = new org.joda.time.Duration(ctx.get[DateTime]("start_time"), DateTime.now()).getMillis
+        logger.debug(s"request ${ctx.normalisedPath()} over, spend time = $spend ms")
+      }
     }
   }
 
@@ -206,6 +216,18 @@ class HttpServerVerticle extends ScalaVerticle with LazyLogging {
   override def stop(): Unit = {
     logger.info(s"http server listen at $port unbinding")
     server.close()
+  }
+
+  def withRequestId(block: => Unit)(implicit ctx: RoutingContext): Unit = {
+    import org.slf4j.MDC
+    val request_id = ctx.get[String]("request_id")
+    val origin     = MDC.get("request_id")
+    MDC.put("request_id", request_id)
+    block
+    if (origin == null)
+      MDC.remove("request_id")
+    else
+      MDC.put("request_id", origin)
   }
 
 }
