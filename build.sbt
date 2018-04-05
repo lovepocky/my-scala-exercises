@@ -11,6 +11,11 @@ lazy val common_settings = Seq(
   )
 )
 
+lazy val common_setting_logging = Seq(
+  libraryDependencies ++= Seq(dep.`scala-logging`) ++
+    dep.`logback`
+)
+
 lazy val root = (project in file(".")).settings(
   name := "my-scala-exercise",
   libraryDependencies += scalaTest % Test
@@ -79,6 +84,25 @@ lazy val `json-rapture-test` = (project in file("json-rapture-test"))
     ) ++ RaptureJson.deps_common :+ RaptureJson.dep_backend_jackson :+ RaptureJson.dep_backend_circe :+ dep_vertx_lang_scala :+ `dep_jackson-module-scala`
   )
 
+/*lazy val `json-scala-jack` = (project in file("json-scala-jack"))
+  .settings(common_settings)
+  .settings(
+    useJCenter := true,
+    libraryDependencies ++= Seq(
+      scalajack,
+      scalajack_mongo
+    )
+  )*/
+
+lazy val `json-jsoniter` = (project in file("json-jsoniter"))
+  .settings(common_settings)
+  .settings(common_setting_logging)
+  .settings(
+    libraryDependencies ++= Seq(
+      `jsoniter-scala`
+    )
+  )
+
 lazy val `vertx-web-client` = (project in file("vertx-web-client"))
   .settings(common_settings)
   .settings(
@@ -109,6 +133,7 @@ lazy val `vertx-graphql` = (project in file("vertx-graphql"))
   )
   .settings(
     dep.RaptureJson.settings_resolvers,
+    settings.add_resolver_engagingspaces,
     libraryDependencies ++= Seq(
 //      `dep_vertx-mongo-client`,
     ) ++ dep_airframe
@@ -123,4 +148,14 @@ lazy val `vertx-graphql` = (project in file("vertx-graphql"))
       :+ dep.`sangria-circe`
       :+ dep.`vertx-web-client-scala`
       :+ dep.`vertx-web-scala`
+      :+ dep.`vertx-dataloader`
+  )
+
+lazy val `extensions-hamsters` = (project in file("extensions-hamsters"))
+  .settings(common_settings)
+  .settings(common_setting_logging)
+  .settings(
+    libraryDependencies ++= Seq(
+      dep.hamsters
+    )
   )

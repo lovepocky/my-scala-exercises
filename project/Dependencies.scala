@@ -1,12 +1,19 @@
 import sbt._
 import sbt.Keys._
 
+object settings {
+  val add_resolver_engagingspaces = resolvers += "engagingspaces" at "https://dl.bintray.com/engagingspaces/maven"
+
+  val jsoniter_print_codecs = scalacOptions += "-Xmacro-settings:print-codecs"
+}
+
 object Versions {
   val airframe           = "0.41"
   val coroutine          = "0.6"
   val coroutine_snapshot = "0.8-SNAPSHOT"
   val rapture_json       = "2.0.0-M9"
   val vertx              = "3.5.1"
+  val scalajack          = "5.0.8"
 }
 
 object dep {
@@ -66,13 +73,22 @@ object dep {
     val dep_backend_vertx   = "cn.lovepocky"   %% "rapture-json-vertx"   % Versions.rapture_json
   }
 
-  val dep_vertx_lang_scala       = "io.vertx" %% "vertx-lang-scala"         % Versions.vertx
-  val `vertx-web-client-scala`   = "io.vertx" %% "vertx-web-client-scala"   % Versions.vertx
-  val `vertx-mongo-client-scala` = "io.vertx" %% "vertx-mongo-client-scala" % Versions.vertx
-  val `vertx-web-scala`          = "io.vertx" %% "vertx-web-scala"          % Versions.vertx
+  val `scalajack`        = "co.blocke" %% "scalajack"        % Versions.scalajack
+  val `scalajack_mongo`  = "co.blocke" %% "scalajack_mongo"  % Versions.scalajack
+  val `scalajack_dynamo` = "co.blocke" %% "scalajack_dynamo" % Versions.scalajack
+
+  val `jsoniter-scala` = "com.github.plokhotnyuk.jsoniter-scala" %% "macros" % "0.22.2"
+
+  val dep_vertx_lang_scala       = "io.vertx"          %% "vertx-lang-scala"         % Versions.vertx
+  val `vertx-web-client-scala`   = "io.vertx"          %% "vertx-web-client-scala"   % Versions.vertx
+  val `vertx-mongo-client-scala` = "io.vertx"          %% "vertx-mongo-client-scala" % Versions.vertx
+  val `vertx-web-scala`          = "io.vertx"          %% "vertx-web-scala"          % Versions.vertx
+  val `vertx-dataloader`         = "io.engagingspaces" % "vertx-dataloader"          % "1.0.0"
 
   val `dep_jackson-module-scala` = "com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.9.4"
 
   val `sangria`       = "org.sangria-graphql" %% "sangria"       % "1.4.0"
   val `sangria-circe` = "org.sangria-graphql" %% "sangria-circe" % "1.2.1"
+
+  val hamsters = "io.github.scala-hamsters" %% "hamsters" % "2.5.0"
 }
