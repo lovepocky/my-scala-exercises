@@ -5,15 +5,15 @@ lazy val common_settings = Seq(
   scalaVersion := "2.12.4",
   libraryDependencies ++= Seq(
     scalaTest % Test,
-    dep_ammonite,
+    dep.ammonite.`ammonite-ops`,
 //    dep_airframe_log,
     dep_quicklens
   )
 )
 
 lazy val common_setting_logging = Seq(
-  libraryDependencies ++= Seq(dep.`scala-logging`) ++
-    dep.`logback`
+  libraryDependencies ++= Seq(dep.logging.`scala-logging`) ++
+    dep.logging.`logback`
 )
 
 lazy val root = (project in file(".")).settings(
@@ -28,10 +28,10 @@ lazy val airframe = (project in file("airframe"))
       ) ++ dep_airframe
   )
 
-lazy val `airframe-log-migrate-slf4f` = (project in file("airframe-log-migrate-slf4j"))
-  .dependsOn(airframe)
-  .settings(
-    )
+//lazy val `airframe-log-migrate-slf4f` = (project in file("airframe-log-migrate-slf4j"))
+//  .dependsOn(airframe)
+//  .settings(
+//    )
 
 lazy val `scala-scraper` = (project in file("scala-scraper"))
   .settings(common_settings)
@@ -61,6 +61,7 @@ lazy val `scala-coroutines` = (project in file("scala-coroutines"))
 //      `dep_scala-async`
 //      `dep_coroutines`
     ),
+    excludeDependencies += ExclusionRule("com.lihaoyi"),
     settings_coroutines
   )
 
@@ -138,8 +139,8 @@ lazy val `vertx-graphql` = (project in file("vertx-graphql"))
 //      `dep_vertx-mongo-client`,
     ) ++ dep_airframe
       ++ dep.RaptureJson.deps_common
-      ++ dep.`logback`
-      :+ dep.`scala-logging`
+      ++ dep.logging.`logback`
+      :+ dep.logging.`scala-logging`
       :+ dep.RaptureJson.dep_backend_vertx
       :+ dep.RaptureJson.dep_backend_circe
       :+ `dep_scala-async`
@@ -158,4 +159,55 @@ lazy val `extensions-hamsters` = (project in file("extensions-hamsters"))
     libraryDependencies ++= Seq(
       dep.hamsters
     )
+  )
+
+lazy val `akka-stream` = (project in file("akka-stream"))
+  .settings(common_settings)
+  .settings(fork in run := true)
+  .settings(
+    libraryDependencies ++= Seq()
+      ++ dep.akka.`akka-stream`
+  )
+
+lazy val `flink-kafka` = (project in file("flink-kafka"))
+  .settings(common_settings)
+  .settings(common_setting_logging)
+  .settings(
+    ThisBuild / resolvers ++= Seq(
+      "Apache Development Snapshot Repository" at "https://repository.apache.org/content/repositories/snapshots/",
+      Resolver.mavenLocal
+    ),
+    ThisBuild / scalaVersion := "2.11.12",
+    scalaVersion := "2.11.12",
+//assembly / mainClass := Some("org.example.Job"),
+// make run command include the provided dependencies
+    Compile / run := Defaults
+      .runTask(
+        Compile / fullClasspath,
+        Compile / run / mainClass,
+        Compile / run / runner
+      )
+      .evaluated,
+// stays inside the sbt console when we press "ctrl-c" while a Flink programme executes with "run" or "runMain"
+    Compile / run / fork := true,
+    Global / cancelable := true
+// exclude Scala library from assembly
+//assembly / assemblyOption  := (assembly / assemblyOption).value.copy(includeScala = false),
+  )
+  .settings(
+    libraryDependencies ++= Seq(
+      dep.`typesafe-config`,
+      dep.flink.`flink-connector-kafka`,
+      dep.flink.`flink-scala`,
+      dep.flink.`flink-streaming-scala`,
+      dep.flink.`flink-runtime-web`
+    ),
+//    excludeDependencies += ExclusionRule(""),
+    test / javaOptions += "-Dlogback.debug=true"
+  )
+  .settings(
+    dep.logging.settings_exclude_log4j,
+    libraryDependencies ++= dep.logging.deps_logging_slf4j_logback
+      ++ dep.logging.`logback`
+      :+ dep.logging.`scala-logging`
   )
